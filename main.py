@@ -9,10 +9,10 @@ import os
 class attendance():
     def __init__(self, conffilename='conffilename', filename='filename'):
         self.timeconf = ['上班时间', '下班时间', '迟到时间']
-        self.up_downtime = {}   # 上下班时间，格式：{'下班时间': '18-00-00', '上班时间': '09-00-00'}
-        self.holidays = {}      # 节假日设定，格式：{'清明': ['2018-04-05', '2018-04-06', '2018-04-07']}
-        self.year = ""         # 考勤年
-        self.month = ""         # 考勤数据月份
+        self.up_downtime = {}  # 上下班时间，格式：{'下班时间': '18-00-00', '上班时间': '09-00-00'}
+        self.holidays = {}  # 节假日设定，格式：{'清明': ['2018-04-05', '2018-04-06', '2018-04-07']}
+        self.year = ""  # 考勤年
+        self.month = ""  # 考勤数据月份
         self.notneed_person = []
         self.conffile = conffilename
         self.filename = filename
@@ -28,7 +28,7 @@ class attendance():
                     date_value = xlrd.xldate_as_tuple(worktimeconf.cell_value(cols, 1), workbook.datemode)
                     datestr = datetime.time(*date_value[3:5]).strftime('%H:%M')
                     self.up_downtime[worktimeconf.cell_value(cols, 0)] = datestr
-        #print(self.up_downtime)
+        # print(self.up_downtime)
         # 获取配置：节假日设定
         workholidaysconf = workbook.sheet_by_name('节假日设定')
         for rows in range(workholidaysconf.nrows):
@@ -36,16 +36,18 @@ class attendance():
                 temp_list_holidays = []
                 # 获取假期起始日期
                 date_start_value = xlrd.xldate_as_tuple(workholidaysconf.cell_value(rows, 1), workbook.datemode)
-                startdate = datetime.datetime.strptime(datetime.date(*date_start_value[:3]).strftime('%Y-%m-%d'), "%Y-%m-%d")
+                startdate = datetime.datetime.strptime(datetime.date(*date_start_value[:3]).strftime('%Y-%m-%d'),
+                                                       "%Y-%m-%d")
                 # 获取假期结束日期
                 date_end_value = xlrd.xldate_as_tuple(workholidaysconf.cell_value(rows, 2), workbook.datemode)
-                enddate = datetime.datetime.strptime(datetime.date(*date_end_value[:3]).strftime('%Y-%m-%d'), "%Y-%m-%d")
+                enddate = datetime.datetime.strptime(datetime.date(*date_end_value[:3]).strftime('%Y-%m-%d'),
+                                                     "%Y-%m-%d")
                 while startdate < enddate:
                     date_str = startdate.strftime('%Y-%m-%d')
                     temp_list_holidays.append(date_str)
                     startdate += datetime.timedelta(days=1)
                 self.holidays[workholidaysconf.cell_value(rows, 0)] = temp_list_holidays
-        #print(self.holidays)
+        # print(self.holidays)
         # 获取考勤数据月份
         workotherconf = workbook.sheet_by_name('其他配置')
         for rows in range(workotherconf.nrows):
@@ -57,7 +59,6 @@ class attendance():
             if workotherconf.cell_value(rows, 0) == u'免打卡人员':
                 self.notneed_person = workotherconf.cell_value(rows, 1).split('|')
 
-
     # 获取当月所有工作日
     def get_days(self, type=0):
         """
@@ -65,7 +66,7 @@ class attendance():
         :return: list
         """
         type = type
-        days = []       # 当月所有日期，格式：['2018-03-01', ... '2018-03-31']
+        days = []  # 当月所有日期，格式：['2018-03-01', ... '2018-03-31']
         self.get_conf()
         temp_list_holiday_1 = []
         monthrange = calendar.monthrange(self.year, self.month)
@@ -119,15 +120,15 @@ class attendance():
         # "签到方式"在第几列
         notestype_index = temp_list_data_1.index('签到方式')
         for n in range(1, data_sheet.nrows):
-            username = data_sheet.cell_value(n, username_index) # 姓名
-            notesdate = data_sheet.cell_value(n, notesdate_index)# 刷卡日期
+            username = data_sheet.cell_value(n, username_index)  # 姓名
+            notesdate = data_sheet.cell_value(n, notesdate_index)  # 刷卡日期
             # 刷卡时间
             if data_sheet.cell(n, notestime_index).ctype == 3:
                 date_value = xlrd.xldate_as_tuple(data_sheet.cell_value(n, notestime_index), workbook.datemode)
                 notestime = datetime.time(*date_value[3:5]).strftime('%H:%M:%S')
             else:
                 notestime = data_sheet.cell_value(n, notestime_index)
-            notestype = data_sheet.cell_value(n, notestype_index)# 签到方式
+            notestype = data_sheet.cell_value(n, notestype_index)  # 签到方式
             if username not in temp_dic_data_1.keys():
                 temp_dic_data_1[username] = {}
                 temp_dic_data_1[username]['date'] = {}
@@ -153,11 +154,15 @@ class attendance():
             end = ''
             out = ''
             for n in range(len(datalist)):
-                if datetime.datetime.strptime('7:30', '%H:%M') <= datetime.datetime.strptime(datalist[n], '%H:%M') < datetime.datetime.strptime('12:00', '%H:%M'):
+                if datetime.datetime.strptime('7:30', '%H:%M') <= datetime.datetime.strptime(datalist[n],
+                                                                                             '%H:%M') < datetime.datetime.strptime(
+                        '12:00', '%H:%M'):
                     if not one:
                         one = datalist[n]
                         continue
-                if datetime.datetime.strptime('17:00', '%H:%M') <= datetime.datetime.strptime(datalist[n], '%H:%M') < datetime.datetime.strptime('23:59', '%H:%M'):
+                if datetime.datetime.strptime('17:00', '%H:%M') <= datetime.datetime.strptime(datalist[n],
+                                                                                              '%H:%M') < datetime.datetime.strptime(
+                        '23:59', '%H:%M'):
                     end = datalist[n]
                 if datetime.datetime.strptime('21:00', '%H:%M') <= datetime.datetime.strptime(datalist[n], '%H:%M'):
                     out = datalist[n]
@@ -194,7 +199,7 @@ class attendance():
             # 初始化综合结果
             if 'result' not in values.keys():
                 values['result'] = {}
-            #for notedate, alltime in values['date'].items():
+            # for notedate, alltime in values['date'].items():
             for notedate in days_work:
                 if notedate not in values['result']:
                     data[name]['result'][notedate] = {}
@@ -222,8 +227,11 @@ class attendance():
                             values['result'][notedate]['downtime'] = endtime
                             worktime = datetime.datetime.strptime(endtime, '%H:%M') - datetime.datetime.strptime(
                                 starttime, '%H:%M')
-                            if datetime.datetime.strptime(starttime, '%H:%M') > datetime.datetime.strptime(out_time, '%H:%M'):
-                                lasttime = str((datetime.datetime.strptime(starttime, '%H:%M') - datetime.datetime.strptime(out_time, '%H:%M')))
+                            if datetime.datetime.strptime(starttime, '%H:%M') > datetime.datetime.strptime(out_time,
+                                                                                                           '%H:%M'):
+                                lasttime = str((datetime.datetime.strptime(starttime,
+                                                                           '%H:%M') - datetime.datetime.strptime(
+                                    out_time, '%H:%M')))
                                 data[name]['result'][notedate]['latertime'] = lasttime
                             else:
                                 # 早退
@@ -244,7 +252,8 @@ class attendance():
                             values['result'][notedate]['losttime'] = 8
                         # 加班
                         if 'out' in alltime.keys():
-                            values['result'][notedate]['outtime'] = datetime.datetime.strptime(alltime['out'], '%H:%M') - datetime.datetime.strptime(
+                            values['result'][notedate]['outtime'] = datetime.datetime.strptime(alltime['out'],
+                                                                                               '%H:%M') - datetime.datetime.strptime(
                                 '21:00', '%H:%M')
                     else:
                         values['result'][notedate]['uptime'] = '未打卡'
@@ -260,7 +269,7 @@ class attendance():
                         # 初始化未打卡统计
                     if len(values['date'][notedate2]) >= 2:
                         alltime = self.check_note(data[name]['date'][notedate2], outtime='None')
-                        #print(values['date'][notedate2], alltime)
+                        # print(values['date'][notedate2], alltime)
                         outwork_time = datetime.datetime.strptime(alltime['end'], '%H:%M') - \
                                        datetime.datetime.strptime(alltime['one'], '%H:%M')
                         values['result'][notedate2]['holidayworktime'] = outwork_time
@@ -282,9 +291,11 @@ class attendance():
         # Excel 格式
         # ============================================================
         # 表头格式：加粗,居中
-        cell_format_head = workbook.add_format({'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter', 'fg_color': '#9900FF'})
+        cell_format_head = workbook.add_format(
+            {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter', 'fg_color': '#9900FF'})
         # 首列姓名格式
-        cell_format_name = workbook.add_format({'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter'})
+        cell_format_name = workbook.add_format(
+            {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter'})
         # 统计数字格式
         cell_format_number = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
         # 日期格式：自动换行，列宽15，居中
