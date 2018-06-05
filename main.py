@@ -297,8 +297,8 @@ class attendance():
         # 表头信息
         table_head = ['姓名', '上班未打卡日期', '上班未打卡次数',
                       '下班未打卡日期', '下班未打卡次数', '迟到日期', '迟到时间',
-                      '早退日期', '早退时间','加班日期', '加班时长',
-                      '缺勤日期', '周末及节假日加班日期','周末及节假日加班时长', '备注', '签字']
+                      '早退日期', '早退时间', '加班日期', '加班时长',
+                      '缺勤日期', '周末及节假日加班日期', '周末及节假日加班时长', '备注', '签字']
         for vn in range(len(table_head)):
             worksheet.write(0, vn, table_head[vn], cell_format_head)
         for name in result_data.keys():
