@@ -7,7 +7,7 @@ import os
 
 
 class attendance():
-    def __init__(self, conffilename='conffilename', filename='filename'):
+    def __init__(self, conffilename='conffilename', filename='filename', filename23='filename'):
         self.timeconf = ['上班时间', '下班时间', '迟到时间']
         self.up_downtime = {}  # 上下班时间，格式：{'下班时间': '18-00-00', '上班时间': '09-00-00'}
         self.holidays = {}  # 节假日设定，格式：{'清明': ['2018-04-05', '2018-04-06', '2018-04-07']}
@@ -16,6 +16,7 @@ class attendance():
         self.notneed_person = []
         self.conffile = conffilename
         self.filename = filename
+        self.filename_23 = filename23
 
     def get_conf(self):
         # 获取配置：上下班时间
@@ -101,7 +102,8 @@ class attendance():
             raise Exception
         return days
 
-    def get_data(self):
+    # 获取考勤数据
+    def get_date(self):
         temp_list_data_1 = []
         temp_dic_data_1 = {}
         # open data file
@@ -156,13 +158,13 @@ class attendance():
             for n in range(len(datalist)):
                 if datetime.datetime.strptime('7:30', '%H:%M') <= datetime.datetime.strptime(datalist[n],
                                                                                              '%H:%M') < datetime.datetime.strptime(
-                        '12:00', '%H:%M'):
+                    '12:00', '%H:%M'):
                     if not one:
                         one = datalist[n]
                         continue
                 if datetime.datetime.strptime('17:00', '%H:%M') <= datetime.datetime.strptime(datalist[n],
                                                                                               '%H:%M') < datetime.datetime.strptime(
-                        '23:59', '%H:%M'):
+                    '23:59', '%H:%M'):
                     end = datalist[n]
                 if datetime.datetime.strptime('21:00', '%H:%M') <= datetime.datetime.strptime(datalist[n], '%H:%M'):
                     out = datalist[n]
@@ -184,9 +186,12 @@ class attendance():
             return L
 
     # 处理数据
-    def make_data(self):
+    def make_data(self, type=1):  # :type:{1: 11层数据, 2: 23层数据}
         temp_dict_data_2 = {}
-        data = self.get_data()
+        if type == 1:
+            data = self.get_date()
+        elif type == 2:
+            data = self.get_23data()
         days_work = self.get_days()
         days_out = self.get_days(type=1)
         self.get_conf()
@@ -269,6 +274,7 @@ class attendance():
                         # 初始化未打卡统计
                     if len(values['date'][notedate2]) >= 2:
                         alltime = self.check_note(data[name]['date'][notedate2], outtime='None')
+                        # print(alltime)
                         # print(values['date'][notedate2], alltime)
                         outwork_time = datetime.datetime.strptime(alltime['end'], '%H:%M') - \
                                        datetime.datetime.strptime(alltime['one'], '%H:%M')
@@ -281,13 +287,176 @@ class attendance():
         if not os.path.exists('result'):
             os.mkdir('result')
         else:
-            if os.path.exists(os.path.join('result', '金桐{}月份考勤.xlsx'.format(self.month))):
-                os.remove(os.path.join('result', '金桐{}月份考勤.xlsx'.format(self.month)))
+            if os.path.exists(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month))):
+                os.remove(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
         result_data = self.make_data()
         # create excel table
-        workbook = xlsxwriter.Workbook(os.path.join('result', '金桐{}月份考勤.xlsx'.format(self.month)))
+        workbook = xlsxwriter.Workbook(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
         # create sheet
-        worksheet = workbook.add_worksheet('金桐{}月份考勤'.format(self.month))
+        worksheet = workbook.add_worksheet('金桐11层{}月份考勤'.format(self.month))
+        # Excel 格式
+        # ============================================================
+        # 表头格式：加粗,居中
+        cell_format_head = workbook.add_format(
+            {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter', 'fg_color': '#9900FF'})
+        # 首列姓名格式
+        cell_format_name = workbook.add_format(
+            {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter'})
+        # 统计数字格式
+        cell_format_number = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+        # 日期格式：自动换行，列宽15，居中
+        cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
+        worksheet.set_column('A:N', 12)
+        # 边框实线
+        workbook.add_format({'border': 1})
+        # ============================================================
+        worksheet_cols = 1
+        # 表头信息
+        table_head = ['姓名', '上班未打卡日期', '上班未打卡次数',
+                      '下班未打卡日期', '下班未打卡次数', '迟到日期', '迟到时间',
+                      '早退日期', '早退时间', '加班日期', '加班时长',
+                      '缺勤日期', '周末及节假日加班日期', '周末及节假日加班时长', '备注', '签字']
+        for vn in range(len(table_head)):
+            worksheet.write(0, vn, table_head[vn], cell_format_head)
+        for name in result_data.keys():
+            if name in self.notneed_person:
+                continue
+            worksheet.write(worksheet_cols, 0, name, cell_format_name)
+            # 旷工日期
+            passwork_list = []
+            # 缺勤(小时)
+            lostwork_hour = 0
+            # 上班未打卡日期
+            no_uptime_list = []
+            # 上班未打卡次数
+            no_uptime_num = 0
+            # 下班未打卡日期
+            no_downtime_list = []
+            # 下班未打卡次数
+            no_downtime_num = 0
+            # 迟到日期 / 时间
+            lastdate_list = []
+            lastdate_time = []
+            # 早退日期 / 时间
+            before_list = []
+            before_time = []
+            # 加班日期及时间
+            outtime_list = []
+            outtime_time = []
+            # 周末节假日加班日期及时长
+            holiday_list = []
+            holiday_time = []
+            days2 = self.get_days(type=1)
+            days = self.get_days()
+            for date in days:
+                date_result = result_data[name]['result'][date]
+                print(date_result)
+                if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
+                    no_uptime_list.append(date)
+                    no_uptime_num += 1
+                if date_result['downtime'] == '未打卡' and date_result['uptime'] != '未打卡':
+                    no_downtime_list.append(date)
+                    no_downtime_num += 1
+                if date_result['losttime'] == 8:
+                    passwork_list.append(date)
+                if date_result['latertime']:
+                    lastdate_list.append(date)
+                    lastdate_time.append(str(date_result['latertime']))
+                if date_result['befortime']:
+                    before_list.append(date)
+                    before_time.append(str(date_result['befortime']))
+                if 'outtime' in date_result.keys():
+                    outtime_list.append(date)
+                    outtime_time.append(str(date_result['outtime']))
+                lostwork_hour += date_result['losttime']
+            for date2 in days2:
+                if date2 in result_data[name]['result'].keys():
+                    date_result = result_data[name]['result'][date2]
+                    if 'holidayworktime' in date_result.keys():
+                        holiday_list.append(date2)
+                        holiday_time.append(str(date_result['holidayworktime']))
+
+            # 写入excel
+            if no_uptime_list and no_uptime_num:
+                worksheet.write(worksheet_cols, 1, ' '.join(no_uptime_list), cell_format_date)
+                worksheet.write(worksheet_cols, 2, no_uptime_num, cell_format_number)
+            if no_downtime_list and no_downtime_num:
+                worksheet.write(worksheet_cols, 3, ' '.join(no_downtime_list), cell_format_date)
+                worksheet.write(worksheet_cols, 4, no_downtime_num, cell_format_number)
+            if lastdate_list and lastdate_time:
+                worksheet.write(worksheet_cols, 5, ' '.join(lastdate_list), cell_format_date)
+                worksheet.write(worksheet_cols, 6, '\n'.join(lastdate_time), cell_format_date)
+            if before_list and before_time:
+                worksheet.write(worksheet_cols, 7, ' '.join(before_list), cell_format_date)
+                worksheet.write(worksheet_cols, 8, '\n'.join(before_time), cell_format_date)
+            if outtime_list and outtime_time:
+                worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
+                worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
+            if passwork_list:
+                worksheet.write(worksheet_cols, 11, ' '.join(passwork_list), cell_format_date)
+            if holiday_list and holiday_time:
+                worksheet.write(worksheet_cols, 12, ' '.join(holiday_list), cell_format_date)
+                worksheet.write(worksheet_cols, 13, '\n'.join(holiday_time), cell_format_date)
+            worksheet_cols += 1
+        workbook.close()
+
+    # 获取23层考勤数据
+    def get_23data(self):
+        temp_list_data_1 = []
+        temp_dic_data_1 = {}
+        # open data file
+        workbook = xlrd.open_workbook(self.filename_23, encoding_override='gbk')
+        data_sheet = workbook.sheet_by_index(0)
+        for c in range(data_sheet.ncols):
+            temp_list_data_1.append(data_sheet.cell_value(0, c))
+        # "姓名"在第几列
+        username_index = temp_list_data_1.index('姓名')
+        # "刷卡时间"在第几列
+        notestime_index = temp_list_data_1.index('日期时间')
+        # "签到方式"在第几列
+        notestype_index = temp_list_data_1.index('比对方式')
+        for n in range(1, data_sheet.nrows):
+            username = data_sheet.cell_value(n, username_index)  # 姓名
+            date = xlrd.xldate_as_tuple(data_sheet.cell_value(n, notestime_index), 0)  # 刷卡日期
+            # 日期以0补全
+            if date[1] < 10:
+                mon = '0{}'.format(date[1])
+            else:
+                mon = date[1]
+            if date[2] < 10:
+                day = '0{}'.format(date[2])
+            else:
+                day = date[2]
+            notesdate = '{}-{}-{}'.format(date[0], mon, day)
+            # 刷卡时间
+            if data_sheet.cell(n, notestime_index).ctype == 3:
+                date_value = xlrd.xldate_as_tuple(data_sheet.cell_value(n, notestime_index), workbook.datemode)
+                notestime = datetime.time(*date_value[3:4]).strftime('%H:%M')
+            else:
+                notestime = data_sheet.cell_value(n, notestime_index)
+            notestype = data_sheet.cell_value(n, notestype_index)  # 签到方式
+            if username not in temp_dic_data_1.keys():
+                temp_dic_data_1[username] = {}
+                temp_dic_data_1[username]['date'] = {}
+            if notestype == '指纹':
+                if notesdate not in temp_dic_data_1[username]['date'].keys():
+                    temp_dic_data_1[username]['date'][notesdate] = []
+                temp_dic_data_1[username]['date'][notesdate].append(notestime)
+        return temp_dic_data_1
+
+    # create excel table
+    def make_excel_23(self):
+        self.get_conf()
+        if not os.path.exists('result'):
+            os.mkdir('result')
+        else:
+            if os.path.exists(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month))):
+                os.remove(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
+        result_data = self.make_data(type=2)
+        # create excel table
+        workbook = xlsxwriter.Workbook(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
+        # create sheet
+        worksheet = workbook.add_worksheet('金桐23层{}月份考勤'.format(self.month))
         # Excel 格式
         # ============================================================
         # 表头格式：加粗,居中
@@ -396,5 +565,6 @@ class attendance():
 
 
 if __name__ == '__main__':
-    C = attendance(conffilename='考勤配置文件.xlsx', filename=r'考勤.xls')
+    C = attendance(conffilename='考勤配置文件.xlsx', filename=r'11层考勤.xls', filename23=r'23层考勤.xls')
     C.make_excel()
+    C.make_excel_23()
