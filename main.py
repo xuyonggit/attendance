@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import xlrd
 import xlsxwriter
-import datetime,time
+import datetime, time
 import calendar
 import os
 
@@ -269,14 +269,14 @@ class attendance():
     # create excel table
     def make_excel(self):
         self.get_conf()
-        if not os.path.exists('.\\result'):
-            os.mkdir('.\\result')
+        if not os.path.exists('result'):
+            os.mkdir('result')
         else:
-            if os.path.exists('.\\result\\金桐{}月份考勤.xlsx'.format(self.month)):
-                os.remove('.\\result\\金桐{}月份考勤.xlsx'.format(self.month))
+            if os.path.exists(os.path.join('result', '金桐{}月份考勤.xlsx'.format(self.month))):
+                os.remove(os.path.join('result', '金桐{}月份考勤.xlsx'.format(self.month)))
         result_data = self.make_data()
         # create excel table
-        workbook = xlsxwriter.Workbook('.\\result\\金桐{}月份考勤.xlsx'.format(self.month))
+        workbook = xlsxwriter.Workbook(os.path.join('result', '金桐{}月份考勤.xlsx'.format(self.month)))
         # create sheet
         worksheet = workbook.add_worksheet('金桐{}月份考勤'.format(self.month))
         # Excel 格式
@@ -385,5 +385,5 @@ class attendance():
 
 
 if __name__ == '__main__':
-    C = attendance(conffilename='.\考勤配置文件.xlsx', filename=r'考勤.xls')
+    C = attendance(conffilename='考勤配置文件.xlsx', filename=r'考勤.xls')
     C.make_excel()
