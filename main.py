@@ -20,7 +20,12 @@ class attendance():
 
     def get_conf(self):
         # 获取配置：上下班时间
-        workbook = xlrd.open_workbook(self.conffile)
+        try:
+            workbook = xlrd.open_workbook(self.conffile)
+        except FileNotFoundError as f:
+            print("系统发生异常：")
+            input("Error:找不到配置文件【{}】: ".format(self.conffile))
+            os.system(exit(1))
         # 获取上下班时间配置
         worktimeconf = workbook.sheet_by_name('上下班时间')
         for cols in range(worktimeconf.nrows):
@@ -107,7 +112,12 @@ class attendance():
         temp_list_data_1 = []
         temp_dic_data_1 = {}
         # open data file
-        workbook = xlrd.open_workbook(self.filename, encoding_override='gbk')
+        try:
+            workbook = xlrd.open_workbook(self.filename, encoding_override='gbk')
+        except FileNotFoundError as f:
+            print("系统发生异常：")
+            input("Error:找不到考勤文件【{}】，请检查文件名是否有误\n或者有多余空格 ：".format(self.filename))
+            os.system(exit(1))
         data_sheet = workbook.sheet_by_index(0)
         for c in range(data_sheet.ncols):
             temp_list_data_1.append(data_sheet.cell_value(0, c))
@@ -195,9 +205,9 @@ class attendance():
         days_work = self.get_days()
         days_out = self.get_days(type=1)
         self.get_conf()
-        up_time = self.up_downtime.get('上班时间')
-        down_time = self.up_downtime.get('下班时间')
-        out_time = self.up_downtime.get('迟到时间')
+        up_time = self.up_downtime.get('上班时间', '9:00')
+        down_time = self.up_downtime.get('下班时间', '18:00')
+        out_time = self.up_downtime.get('迟到时间', '9:30')
         # 标准工时
         default_worktime = datetime.datetime.strptime(down_time, '%H:%M') - datetime.datetime.strptime(up_time, '%H:%M')
         for name, values in data.items():
@@ -405,7 +415,12 @@ class attendance():
         temp_list_data_1 = []
         temp_dic_data_1 = {}
         # open data file
-        workbook = xlrd.open_workbook(self.filename_23, encoding_override='gbk')
+        try:
+            workbook = xlrd.open_workbook(self.filename_23, encoding_override='gbk')
+        except FileNotFoundError as f:
+            print("系统发生异常：")
+            input("Error:找不到考勤文件【{}】，请检查文件名是否有误\n或者有多余空格 ：".format(self.filename_23))
+            os.system(exit(1))
         data_sheet = workbook.sheet_by_index(0)
         for c in range(data_sheet.ncols):
             temp_list_data_1.append(data_sheet.cell_value(0, c))
@@ -568,3 +583,4 @@ if __name__ == '__main__':
     C = attendance(conffilename='考勤配置文件.xlsx', filename=r'11层考勤.xls', filename23=r'23层考勤.xls')
     C.make_excel()
     C.make_excel_23()
+    input("处理成功，按任意键退出：")
