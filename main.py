@@ -196,7 +196,7 @@ class attendance():
             return L
 
     # 处理数据
-    def make_data(self, type=1):  # :type:{1: 11层数据, 2: 23层数据}
+    def make_data(self,type=1):  # :type:{1: 11层数据, 2: 23层数据}
         temp_dict_data_2 = {}
         if type == 1:
             data = self.get_date()
@@ -267,9 +267,14 @@ class attendance():
                             values['result'][notedate]['losttime'] = 8
                         # 加班
                         if 'out' in alltime.keys():
+                            #values['result'][notedate]['outtimes_21'] = 0
+                            #values['result'][notedate]['outtimes_23'] = 0
                             values['result'][notedate]['outtime'] = datetime.datetime.strptime(alltime['out'],
-                                                                                               '%H:%M') - datetime.datetime.strptime(
-                                '21:00', '%H:%M')
+                                '%H:%M') - datetime.datetime.strptime('21:00', '%H:%M')
+                            if values['result'][notedate]['outtime'] >= datetime.timedelta(hours=2):
+                                values['result'][notedate]['outtimes_23'] = 1
+                            else:
+                                values['result'][notedate]['outtimes_21'] = 1
                     else:
                         values['result'][notedate]['uptime'] = '未打卡'
                         values['result'][notedate]['downtime'] = '未打卡'
@@ -298,7 +303,12 @@ class attendance():
             os.mkdir('result')
         else:
             if os.path.exists(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month))):
-                os.remove(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
+                try:
+                    os.remove(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
+                except PermissionError as f:
+                    print(f)
+                    input("按任意键退出：")
+                    os.system(exit(1))
         result_data = self.make_data()
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
@@ -314,7 +324,7 @@ class attendance():
             {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter'})
         # 统计数字格式
         cell_format_number = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
-        # 日期格式：自动换行，列宽15，居中
+        # 日期格式：自动换行，列宽12，居中
         cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
         worksheet.set_column('A:N', 12)
         # 边框实线
@@ -360,7 +370,7 @@ class attendance():
             days = self.get_days()
             for date in days:
                 date_result = result_data[name]['result'][date]
-                print(date_result)
+                print('{}-{}'.format(name, date_result))
                 if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
                     no_uptime_list.append(date)
                     no_uptime_num += 1
@@ -466,7 +476,12 @@ class attendance():
             os.mkdir('result')
         else:
             if os.path.exists(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month))):
-                os.remove(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
+                try:
+                    os.remove(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
+                except PermissionError as f:
+                    print(f)
+                    input("按任意键退出：")
+                    os.system(exit(1))
         result_data = self.make_data(type=2)
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
@@ -528,7 +543,7 @@ class attendance():
             days = self.get_days()
             for date in days:
                 date_result = result_data[name]['result'][date]
-                print(date_result)
+                print('{}-{}'.format(name, date_result))
                 if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
                     no_uptime_list.append(date)
                     no_uptime_num += 1
@@ -579,8 +594,84 @@ class attendance():
         workbook.close()
 
 
+    # create excel for 加班统计
+    def make_excel_count(self):
+        if not os.path.exists('result'):
+            os.mkdir('result')
+        else:
+            if os.path.exists(os.path.join('result', '金桐{}月份加班统计.xlsx'.format(self.month))):
+                try:
+                    os.remove(os.path.join('result', '金桐{}月份加班统计.xlsx'.format(self.month)))
+                except PermissionError as f:
+                    print(f)
+                    input("按任意键退出：")
+                    os.system(exit(1))
+        result_data = self.make_data()
+        print(result_data)
+        # create excel table
+        workbook = xlsxwriter.Workbook(os.path.join('result', '金桐{}月份加班统计.xlsx'.format(self.month)))
+        # create sheet
+        worksheet = workbook.add_worksheet('金桐{}月份加班统计'.format(self.month))
+        # Excel 格式
+        # ============================================================
+        # 表头格式：加粗,居中
+        cell_format_head = workbook.add_format(
+            {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter', 'fg_color': '#9900FF'})
+        # 首列姓名格式
+        cell_format_name = workbook.add_format(
+            {'text_wrap': True, 'bold': True, 'align': 'center', 'valign': 'vcenter'})
+        # 统计数字格式
+        cell_format_number = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+        # 日期格式：自动换行，列宽15，居中
+        cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
+        worksheet.set_column('A:N', 15)
+        # 边框实线
+        workbook.add_format({'border': 1})
+        # ============================================================
+        worksheet_cols = 1
+        # 表头信息
+        table_head = [
+            '姓名', '21点打卡次数', '23点打卡次数', '周末加班日期', '周末加班时长（小时）'
+        ]
+        for vn in range(len(table_head)):
+            worksheet.write(0, vn, table_head[vn], cell_format_head)
+        for name in result_data.keys():
+            if name in self.notneed_person:
+                continue
+            worksheet.write(worksheet_cols, 0, name, cell_format_name)
+            # 21点打卡次数
+            times_of_21 = 0
+            # 23点打卡次数
+            times_of_23 = 0
+            # 周末节假日加班日期及时长
+            holiday_list = []
+            holiday_time = []
+            days = self.get_days()
+            days2 = self.get_days(type=1)
+            for date in days:
+                date_result = result_data[name]['result'][date]
+                times_of_21 += date_result.get('outtimes_21', 0)
+                times_of_23 += date_result.get('outtimes_23', 0)
+            for date2 in days2:
+                if date2 in result_data[name]['result'].keys():
+                    date_result = result_data[name]['result'][date2]
+                    if 'holidayworktime' in date_result.keys():
+                        holiday_list.append(date2)
+                        holiday_time.append(str(date_result['holidayworktime']))
+            if times_of_21 != 0:
+                worksheet.write(worksheet_cols, 1, times_of_21, cell_format_number)
+            if times_of_23 != 0:
+                worksheet.write(worksheet_cols, 2, times_of_21, cell_format_number)
+            if holiday_list and holiday_time:
+                worksheet.write(worksheet_cols, 3, ' '.join(holiday_list), cell_format_date)
+                worksheet.write(worksheet_cols, 4, '\n'.join(holiday_time), cell_format_date)
+            worksheet_cols += 1
+        workbook.close()
+
+
 if __name__ == '__main__':
     C = attendance(conffilename='考勤配置文件.xlsx', filename=r'11层考勤.xls', filename23=r'23层考勤.xls')
     C.make_excel()
     C.make_excel_23()
+    C.make_excel_count()
     input("处理成功，按任意键退出：")
