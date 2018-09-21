@@ -43,17 +43,26 @@ class Ui_MainWindow(object):
         self.groupBox_3.setObjectName("groupBox_3")
         self.utime = QtWidgets.QTimeEdit(self.groupBox_3)
         self.utime.setGeometry(QtCore.QRect(110, 40, 118, 22))
-        self.utime.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.utime.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.utime.setTime(QtCore.QTime(9, 0, 0))
         self.utime.setObjectName("utime")
         self.dtime = QtWidgets.QTimeEdit(self.groupBox_3)
         self.dtime.setGeometry(QtCore.QRect(110, 80, 118, 22))
-        self.dtime.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.dtime.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.dtime.setTime(QtCore.QTime(18, 0, 0))
         self.dtime.setObjectName("dtime")
         self.otime = QtWidgets.QTimeEdit(self.groupBox_3)
         self.otime.setGeometry(QtCore.QRect(110, 120, 118, 22))
-        self.otime.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.otime.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.otime.setTime(QtCore.QTime(9, 30, 0))
         self.otime.setObjectName("otime")
         self.label_3 = QtWidgets.QLabel(self.groupBox_3)
@@ -73,13 +82,19 @@ class Ui_MainWindow(object):
         self.label_5.setObjectName("label_5")
         self.cyear = QtWidgets.QSpinBox(self.centralwidget)
         self.cyear.setGeometry(QtCore.QRect(90, 10, 61, 22))
-        self.cyear.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.cyear.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.cyear.setMinimum(2018)
         self.cyear.setMaximum(2028)
         self.cyear.setObjectName("cyear")
         self.cmonth = QtWidgets.QSpinBox(self.centralwidget)
         self.cmonth.setGeometry(QtCore.QRect(190, 10, 61, 22))
-        self.cmonth.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.cmonth.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.cmonth.setMinimum(1)
         self.cmonth.setMaximum(12)
         self.cmonth.setObjectName("cmonth")
@@ -109,7 +124,10 @@ class Ui_MainWindow(object):
         self.label_9.setObjectName("label_9")
         self.textEdit_2 = QtWidgets.QTextEdit(self.groupBox_4)
         self.textEdit_2.setGeometry(QtCore.QRect(20, 40, 291, 41))
-        self.textEdit_2.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.textEdit_2.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.textEdit_2.setObjectName("textEdit_2")
         self.groupBox_5 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_5.setGeometry(QtCore.QRect(450, 130, 331, 101))
@@ -122,7 +140,10 @@ class Ui_MainWindow(object):
         self.label_10.setObjectName("label_10")
         self.textEdit = QtWidgets.QTextEdit(self.groupBox_5)
         self.textEdit.setGeometry(QtCore.QRect(20, 40, 291, 41))
-        self.textEdit.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.textEdit.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"color: rgb(0, 0, 0);\n"
+"selection-color: rgb(85, 170, 0);\n"
+"selection-background-color: rgb(177, 177, 177);")
         self.textEdit.setObjectName("textEdit")
         self.groupBox_3.raise_()
         self.groupBox.raise_()

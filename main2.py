@@ -361,7 +361,7 @@ class attendance():
             days = self.get_days()
             for date in days:
                 date_result = result_data[name]['result'][date]
-                print('{}-{}'.format(name, date_result))
+                #print('{}-{}'.format(name, date_result))
                 if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
                     no_uptime_list.append(date)
                     no_uptime_num += 1
@@ -674,13 +674,6 @@ class attendance():
 
 
 if __name__ == '__main__':
-    # C = attendance(conffilename='考勤配置文件.xlsx', filename=r'11层考勤.xls', filename23=r'23层考勤.xls')
-    # C.make_excel()
-    # C.make_excel_23()
-    # C.make_excel_count()
-    # input("处理成功，按任意键退出：")
-    # import logging
-
     App = QApplication(sys.argv)
     MainWindow = QMainWindow()
     ui = attendan.Ui_MainWindow()
@@ -710,7 +703,7 @@ if __name__ == '__main__':
         nonotes = ui.textEdit.toPlainText()
         tmp_d2 = []
         if nonotes:
-            for i2 in hdays.split(','):
+            for i2 in nonotes.split(','):
                 tmp_d2.append(i2)
         clist['nonotes'] = tmp_d2
         return clist
