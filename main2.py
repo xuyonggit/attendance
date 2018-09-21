@@ -284,8 +284,9 @@ class attendance():
         logg("下班时间：{}".format(self.up_downtime['下班时间']))
         logg("迟到时间：{}".format(self.up_downtime['迟到时间']))
         for d in self.holidays.keys():
+            items = ''
             for i in self.holidays[d]:
-                items = ','.join(i)
+                items += ' {}'.format(str(i))
             logg('节假日：{}, {}'.format(d, items))
         logg('免打卡人员：{}'.format(','.join(s for s in self.notneed_person)))
         logg('--------------------------------------------')
@@ -679,6 +680,9 @@ if __name__ == '__main__':
     ui = attendan.Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+    # 设置默认值
+    ui.textEdit_2.setPlainText("元旦:2018-01-01 2018-01-03,...")
+    ui.textEdit.setPlainText("佩奇,猪大")
     # -
     def logg(text):
         ui.textBrowser.append(text)
