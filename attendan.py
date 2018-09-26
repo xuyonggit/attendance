@@ -68,20 +68,20 @@ class Ui_MainWindow(object):
         self.label_3 = QtWidgets.QLabel(self.groupBox_3)
         self.label_3.setGeometry(QtCore.QRect(20, 40, 71, 21))
         self.label_3.setStyleSheet("color: rgb(0, 0, 0);\n"
-"font: 15pt \"ADMUI3Sm\";")
+"font: 10pt \"ADMUI3Lg\";")
         self.label_3.setObjectName("label_3")
         self.label_4 = QtWidgets.QLabel(self.groupBox_3)
         self.label_4.setGeometry(QtCore.QRect(20, 80, 71, 21))
         self.label_4.setStyleSheet("color: rgb(0, 0, 0);\n"
-"font: 15pt \"ADMUI3Sm\";")
+"font: 10pt \"ADMUI3Lg\";")
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(self.groupBox_3)
         self.label_5.setGeometry(QtCore.QRect(20, 120, 71, 21))
         self.label_5.setStyleSheet("color: rgb(0, 0, 0);\n"
-"font: 15pt \"ADMUI3Sm\";")
+"font: 10pt \"ADMUI3Lg\";")
         self.label_5.setObjectName("label_5")
         self.cyear = QtWidgets.QSpinBox(self.centralwidget)
-        self.cyear.setGeometry(QtCore.QRect(90, 10, 61, 22))
+        self.cyear.setGeometry(QtCore.QRect(110, 10, 61, 22))
         self.cyear.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "color: rgb(0, 0, 0);\n"
 "selection-color: rgb(85, 170, 0);\n"
@@ -90,7 +90,7 @@ class Ui_MainWindow(object):
         self.cyear.setMaximum(2028)
         self.cyear.setObjectName("cyear")
         self.cmonth = QtWidgets.QSpinBox(self.centralwidget)
-        self.cmonth.setGeometry(QtCore.QRect(190, 10, 61, 22))
+        self.cmonth.setGeometry(QtCore.QRect(210, 10, 61, 22))
         self.cmonth.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "color: rgb(0, 0, 0);\n"
 "selection-color: rgb(85, 170, 0);\n"
@@ -99,17 +99,17 @@ class Ui_MainWindow(object):
         self.cmonth.setMaximum(12)
         self.cmonth.setObjectName("cmonth")
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
-        self.label_6.setGeometry(QtCore.QRect(10, 10, 71, 21))
+        self.label_6.setGeometry(QtCore.QRect(10, 10, 81, 21))
         self.label_6.setStyleSheet("color: rgb(0, 0, 0);\n"
 "font: 10pt \"ADMUI3Lg\";")
         self.label_6.setObjectName("label_6")
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
-        self.label_7.setGeometry(QtCore.QRect(160, 10, 21, 21))
+        self.label_7.setGeometry(QtCore.QRect(180, 10, 21, 21))
         self.label_7.setStyleSheet("color: rgb(0, 0, 0);\n"
 "font: 10pt \"ADMUI3Lg\";")
         self.label_7.setObjectName("label_7")
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
-        self.label_8.setGeometry(QtCore.QRect(270, 10, 16, 21))
+        self.label_8.setGeometry(QtCore.QRect(290, 10, 16, 21))
         self.label_8.setStyleSheet("color: rgb(0, 0, 0);\n"
 "font: 10pt \"ADMUI3Lg\";")
         self.label_8.setObjectName("label_8")
@@ -118,9 +118,9 @@ class Ui_MainWindow(object):
         self.groupBox_4.setTitle("")
         self.groupBox_4.setObjectName("groupBox_4")
         self.label_9 = QtWidgets.QLabel(self.groupBox_4)
-        self.label_9.setGeometry(QtCore.QRect(20, 10, 281, 21))
+        self.label_9.setGeometry(QtCore.QRect(20, 10, 301, 21))
         self.label_9.setStyleSheet("color: rgb(0, 0, 0);\n"
-"font: 15pt \"ADMUI3Sm\";")
+"font: 10pt \"ADMUI3Lg\";")
         self.label_9.setObjectName("label_9")
         self.textEdit_2 = QtWidgets.QTextEdit(self.groupBox_4)
         self.textEdit_2.setGeometry(QtCore.QRect(20, 40, 291, 41))
@@ -134,9 +134,9 @@ class Ui_MainWindow(object):
         self.groupBox_5.setTitle("")
         self.groupBox_5.setObjectName("groupBox_5")
         self.label_10 = QtWidgets.QLabel(self.groupBox_5)
-        self.label_10.setGeometry(QtCore.QRect(20, 10, 131, 21))
+        self.label_10.setGeometry(QtCore.QRect(20, 10, 291, 21))
         self.label_10.setStyleSheet("color: rgb(0, 0, 0);\n"
-"font: 15pt \"ADMUI3Sm\";")
+"font: 10pt \"ADMUI3Lg\";")
         self.label_10.setObjectName("label_10")
         self.textEdit = QtWidgets.QTextEdit(self.groupBox_5)
         self.textEdit.setGeometry(QtCore.QRect(20, 40, 291, 41))

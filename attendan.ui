@@ -189,7 +189,7 @@ selection-background-color: rgb(177, 177, 177);</string>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
-font: 15pt &quot;ADMUI3Sm&quot;;</string>
+font: 10pt &quot;ADMUI3Lg&quot;;</string>
      </property>
      <property name="text">
       <string>上班时间</string>
@@ -206,7 +206,7 @@ font: 15pt &quot;ADMUI3Sm&quot;;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
-font: 15pt &quot;ADMUI3Sm&quot;;</string>
+font: 10pt &quot;ADMUI3Lg&quot;;</string>
      </property>
      <property name="text">
       <string>下班时间</string>
@@ -223,7 +223,7 @@ font: 15pt &quot;ADMUI3Sm&quot;;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
-font: 15pt &quot;ADMUI3Sm&quot;;</string>
+font: 10pt &quot;ADMUI3Lg&quot;;</string>
      </property>
      <property name="text">
       <string>迟到时间</string>
@@ -233,7 +233,7 @@ font: 15pt &quot;ADMUI3Sm&quot;;</string>
    <widget class="QSpinBox" name="cyear">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>110</x>
       <y>10</y>
       <width>61</width>
       <height>22</height>
@@ -255,7 +255,7 @@ selection-background-color: rgb(177, 177, 177);</string>
    <widget class="QSpinBox" name="cmonth">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>210</x>
       <y>10</y>
       <width>61</width>
       <height>22</height>
@@ -279,7 +279,7 @@ selection-background-color: rgb(177, 177, 177);</string>
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>71</width>
+      <width>81</width>
       <height>21</height>
      </rect>
     </property>
@@ -294,7 +294,7 @@ font: 10pt &quot;ADMUI3Lg&quot;;</string>
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>180</x>
       <y>10</y>
       <width>21</width>
       <height>21</height>
@@ -311,7 +311,7 @@ font: 10pt &quot;ADMUI3Lg&quot;;</string>
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>290</x>
       <y>10</y>
       <width>16</width>
       <height>21</height>
@@ -342,13 +342,13 @@ font: 10pt &quot;ADMUI3Lg&quot;;</string>
       <rect>
        <x>20</x>
        <y>10</y>
-       <width>281</width>
+       <width>301</width>
        <height>21</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
-font: 15pt &quot;ADMUI3Sm&quot;;</string>
+font: 10pt &quot;ADMUI3Lg&quot;;</string>
      </property>
      <property name="text">
       <string>节假日 （元旦:2018-01-01 2018-01-03,号隔开）</string>
@@ -388,13 +388,13 @@ selection-background-color: rgb(177, 177, 177);</string>
       <rect>
        <x>20</x>
        <y>10</y>
-       <width>131</width>
+       <width>291</width>
        <height>21</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
-font: 15pt &quot;ADMUI3Sm&quot;;</string>
+font: 10pt &quot;ADMUI3Lg&quot;;</string>
      </property>
      <property name="text">
       <string>免打卡人员 （,号隔开）</string>

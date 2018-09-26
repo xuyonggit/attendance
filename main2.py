@@ -21,7 +21,6 @@ class attendance():
         self.filename_23 = filename23
         self.get_conf()
 
-
     def get_conf(self):
         sdata = getconf()
         # 获取上下班时间配置
@@ -42,7 +41,6 @@ class attendance():
                     startdate += datetime.timedelta(days=1)
         nonotes = sdata['nonotes']
         self.notneed_person = nonotes
-
 
     # 获取当月所有工作日
     def get_days(self, type=0):
@@ -146,14 +144,14 @@ class attendance():
             out = ''
             for n in range(len(datalist)):
                 if datetime.datetime.strptime('7:30', '%H:%M') <= datetime.datetime.strptime(datalist[n],
-                                                                                             '%H:%M') < datetime.datetime.strptime(
-                    '12:00', '%H:%M'):
+                                                                                             '%H:%M') < datetime.datetime.strptime('12:00',
+                                                                                                                                   '%H:%M'):
                     if not one:
                         one = datalist[n]
                         continue
                 if datetime.datetime.strptime('17:00', '%H:%M') <= datetime.datetime.strptime(datalist[n],
-                                                                                              '%H:%M') < datetime.datetime.strptime(
-                    '23:59', '%H:%M'):
+                                                                                              '%H:%M') < datetime.datetime.strptime('23:59',
+                                                                                                                                    '%H:%M'):
                     end = datalist[n]
                 if datetime.datetime.strptime('21:00', '%H:%M') <= datetime.datetime.strptime(datalist[n], '%H:%M'):
                     out = datalist[n]
@@ -175,7 +173,11 @@ class attendance():
             return L
 
     # 处理数据
-    def make_data(self, type=1):  # :type:{1: 11层数据, 2: 23层数据}
+    def make_data(self, type=1):
+        """
+        :param type: int {1: 11层数据, 2: 23层数据}
+        :return:
+        """
         temp_dict_data_2 = {}
         if type == 1:
             data = self.get_date()
@@ -598,7 +600,6 @@ class attendance():
         workbook.close()
         logg("操作完成。")
 
-
     # create excel for 加班统计
     def make_excel_count(self):
         if not os.path.exists('result'):
@@ -681,7 +682,7 @@ if __name__ == '__main__':
     ui.setupUi(MainWindow)
     MainWindow.show()
     # 设置默认值
-    ui.textEdit_2.setPlainText("元旦:2018-01-01 2018-01-03,...")
+    ui.textEdit_2.setPlainText("元旦:2018-01-01 2018-01-03")
     ui.textEdit.setPlainText("佩奇,猪大")
     # -
     def logg(text):
