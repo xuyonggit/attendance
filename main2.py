@@ -600,6 +600,7 @@ class attendance():
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
+        self.write_cache_file(23, ','.join(self.notneed_person))
 
     # create excel for 加班统计
     def make_excel_count(self):
@@ -614,7 +615,7 @@ class attendance():
                     input("按任意键退出：")
                     os.system(exit(1))
         result_data = self.make_data()
-        print(result_data)
+        # print(result_data)
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐{}月份加班统计.xlsx'.format(self.month)))
         # create sheet
@@ -684,25 +685,28 @@ class attendance():
         """
         math = "type_{}-".format(type)
         cache_str = cache_str
-        print(cache_str)
         try:
-            with open('cache.txt', 'r', encoding='utf-8') as r:
-                wlist = []
-                n = 0
-                for line in r.readlines():
-                    if re.match("{}*".format(math), line.strip()):
-                        n = 1
-                    wlist.append(line.strip())
-                if n == 0:
-                    wlist.append('{}{}'.format(math, cache_str))
-                else:
+            if os.path.exists('cache.txt'):
+                with open('cache.txt', 'r', encoding='utf-8') as r:
+                    wlist = []
+                    n = 0
+                    for line in r.readlines():
+                        if re.match("{}*".format(math), line.strip()):
+                            n = 1
+                        wlist.append(line.strip())
+                    if n == 0:
+                        wlist.append('{}{}'.format(math, cache_str))
+                    else:
+                        for i in wlist:
+                            if re.match("{}*".format(math), i):
+                                wlist[wlist.index(i)] = '{}{}'.format(math, cache_str)
+                    # 删除空元素
                     for i in wlist:
-                        if re.match("{}*".format(math), i):
-                            wlist[wlist.index(i)] = '{}{}'.format(math, cache_str)
-                # 删除空元素
-                for i in wlist:
-                    if i == "":
-                        wlist.remove(i)
+                        if i == "":
+                            wlist.remove(i)
+            else:
+                wlist = []
+                wlist.append('{}{}'.format(math, cache_str))
         except Exception:
             pass
         finally:
