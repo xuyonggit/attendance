@@ -3,7 +3,7 @@ import xlrd
 import xlsxwriter
 import datetime, time
 import calendar
-import os
+import os, re
 import sys
 import attendan
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -414,6 +414,7 @@ class attendance():
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
+        self.write_cache_file(11, ','.join(self.notneed_person))
 
     # 获取23层考勤数据
     def get_23data(self):
@@ -674,6 +675,41 @@ class attendance():
             worksheet_cols += 1
         workbook.close()
 
+    # write cache file
+    def write_cache_file(self, type=11, cache_str=''):
+        """
+        :param type: 11 or 23 11层或者23层
+        :param cache_str: 缓存数据
+        :return:
+        """
+        math = "type_{}-".format(type)
+        cache_str = cache_str
+        print(cache_str)
+        try:
+            with open('cache.txt', 'r', encoding='utf-8') as r:
+                wlist = []
+                n = 0
+                for line in r.readlines():
+                    if re.match("{}*".format(math), line.strip()):
+                        n = 1
+                    wlist.append(line.strip())
+                if n == 0:
+                    wlist.append('{}{}'.format(math, cache_str))
+                else:
+                    for i in wlist:
+                        if re.match("{}*".format(math), i):
+                            wlist[wlist.index(i)] = '{}{}'.format(math, cache_str)
+                # 删除空元素
+                for i in wlist:
+                    if i == "":
+                        wlist.remove(i)
+        except Exception:
+            pass
+        finally:
+                with open('cache.txt', 'w+', encoding='utf-8') as w:
+                    for line in wlist:
+                        w.write(line + '\n')
+
 
 if __name__ == '__main__':
     App = QApplication(sys.argv)
@@ -718,7 +754,26 @@ if __name__ == '__main__':
             C.make_excel()
         else:
             C.make_excel_23()
+
+    def auto_set():
+        if ui.radioButton.isChecked():
+            m = 11
+        else:
+            m = 23
+        math = 'type_{}-'.format(m)
+        if not os.path.exists('cache.txt'):
+            pass
+        else:
+            try:
+                with open('cache.txt', 'r', encoding='utf-8') as f:
+                    for line in f.readlines():
+                        if re.match(math, line.strip()):
+                            ui.textEdit.setPlainText(str(line.strip().split(math)[1]))
+            except Exception as e:
+                print(e)
     C = attendance(filename=r'11层考勤.xls', filename23=r'23层考勤.xls')
     ui.textBrowser.setText('')
+    auto_set()
+    ui.radioButton.toggled.connect(auto_set)
     ui.pushButton.clicked.connect(Main)
     sys.exit(App.exec_())
