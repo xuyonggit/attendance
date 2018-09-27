@@ -13,7 +13,6 @@ class attendance():
     def __init__(self, filename='filename', filename23='filename'):
         self.timeconf = ['上班时间', '下班时间', '迟到时间']
         self.up_downtime = {}  # 上下班时间，格式：{'下班时间': '18-00-00', '上班时间': '09-00-00'}
-        self.holidays = {}  # 节假日设定，格式：{'清明': ['2018-04-05', '2018-04-06', '2018-04-07']}
         self.year = ""  # 考勤年
         self.month = ""  # 考勤数据月份
         self.notneed_person = []
@@ -29,6 +28,7 @@ class attendance():
         # 获取考勤数据月份
         self.year = int(sdata['year'])
         self.month = int(sdata['month'])
+        self.holidays = {}  # 节假日设定，格式：{'清明': ['2018-04-05', '2018-04-06', '2018-04-07']}
         hdays = sdata['hdays']
         if hdays:
             for name in hdays.keys():
@@ -321,6 +321,8 @@ class attendance():
         # 日期格式：自动换行，列宽12，居中
         cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
         worksheet.set_column('A:N', 12)
+        # 设置默认行高 22
+        worksheet.set_default_row(22)
         # 边框实线
         workbook.add_format({'border': 1})
         # ============================================================
@@ -474,8 +476,9 @@ class attendance():
         logg("下班时间：{}".format(self.up_downtime['下班时间']))
         logg("迟到时间：{}".format(self.up_downtime['迟到时间']))
         for d in self.holidays.keys():
+            items = ''
             for i in self.holidays[d]:
-                items = ','.join(i)
+                items += ' {}'.format(str(i))
             logg('节假日：{}, {}'.format(d, items))
         logg('免打卡人员：{}'.format(','.join(s for s in self.notneed_person)))
         logg('--------------------------------------------')
@@ -487,8 +490,6 @@ class attendance():
                     os.remove(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
                 except PermissionError as f:
                     print(f)
-                    input("按任意键退出：")
-                    os.system(exit(1))
         result_data = self.make_data(type=2)
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
@@ -507,6 +508,8 @@ class attendance():
         # 日期格式：自动换行，列宽15，居中
         cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
         worksheet.set_column('A:N', 12)
+        # 设置默认行高 22
+        worksheet.set_default_row(22)
         # 边框实线
         workbook.add_format({'border': 1})
         # ============================================================
@@ -550,7 +553,7 @@ class attendance():
             days = self.get_days()
             for date in days:
                 date_result = result_data[name]['result'][date]
-                print('{}-{}'.format(name, date_result))
+                # print('{}-{}'.format(name, date_result))
                 if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
                     no_uptime_list.append(date)
                     no_uptime_num += 1
@@ -722,6 +725,11 @@ if __name__ == '__main__':
     ui.setupUi(MainWindow)
     MainWindow.show()
     # 设置默认值
+    # 默认年、月份
+    # 默认当前年
+    ui.cyear.setValue(datetime.datetime.today().year)
+    # 默认当前月
+    ui.cmonth.setValue(datetime.datetime.today().month)
     ui.textEdit_2.setPlainText("元旦:2018-01-01 2018-01-03")
     ui.textEdit.setPlainText("佩奇,猪大")
     # -
