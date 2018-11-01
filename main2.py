@@ -55,6 +55,8 @@ class attendance():
         monthrange = calendar.monthrange(self.year, self.month)
         if self.month < 10:
             month = "0{}".format(self.month)
+        else:
+            month = self.month
         # 集中假期日期
         for holiday in self.holidays.values():
             for day in holiday:
