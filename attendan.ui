@@ -56,6 +56,9 @@ background-color: rgb(0, 0, 0);</string>
       <height>16</height>
      </rect>
     </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
     <property name="styleSheet">
      <string notr="true">color: rgb(0, 0, 0);
 font: 10pt &quot;ADMUI3Lg&quot;;</string>
@@ -75,6 +78,9 @@ font: 10pt &quot;ADMUI3Lg&quot;;</string>
       <width>71</width>
       <height>17</height>
      </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
      <string notr="true">color: rgb(0, 0, 0);
@@ -417,6 +423,25 @@ selection-background-color: rgb(177, 177, 177);</string>
      </property>
     </widget>
    </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>250</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>统计加班</string>
+    </property>
+   </widget>
    <zorder>groupBox_3</zorder>
    <zorder>groupBox</zorder>
    <zorder>textBrowser</zorder>
@@ -430,6 +455,7 @@ selection-background-color: rgb(177, 177, 177);</string>
    <zorder>label_8</zorder>
    <zorder>groupBox_4</zorder>
    <zorder>groupBox_5</zorder>
+   <zorder>checkBox</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -444,10 +470,18 @@ selection-background-color: rgb(177, 177, 177);</string>
     <property name="title">
      <string>help</string>
     </property>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="action_2"/>
    </widget>
    <addaction name="menuhelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_2">
+   <property name="text">
+    <string>软件简介</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

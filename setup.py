@@ -10,7 +10,7 @@ from PyInstaller.__main__ import run
 if __name__ == '__main__':
     opts = ['-F', '-w', '--paths=D:\\Installer\\Python\\Python35\\Lib\\site-packages\\PyQt5\\Qt\\bin',
             '--paths=D:\\Installer\\Python\\Python35\\Lib\\site-packages\\PyQt5\\Qt\\plugins',
-            '--paths=E:\\xiaoxu\\attendance',
+            # '--paths=E:\\xiaoxu\\attendance',
             '--icon', 'bitbug_favicon.ico', '--clean',
             'main2.py']
 

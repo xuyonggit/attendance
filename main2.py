@@ -7,6 +7,16 @@ import os, re
 import sys
 import attendan
 from PyQt5.QtWidgets import QApplication, QMainWindow
+import logging
+
+# logging config
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler('attendance.log', encoding='utf-8')
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:(%(lineno)d) - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 class attendance():
@@ -28,6 +38,10 @@ class attendance():
         # 获取考勤数据月份
         self.year = int(sdata['year'])
         self.month = int(sdata['month'])
+        # 判断是否需要分析加班
+        self.workovertime = sdata['workovertime']
+        # 获取考勤区域
+        self.type = int(sdata['type'])
         self.holidays = {}  # 节假日设定，格式：{'清明': ['2018-04-05', '2018-04-06', '2018-04-07']}
         hdays = sdata['hdays']
         if hdays:
@@ -94,9 +108,8 @@ class attendance():
         try:
             workbook = xlrd.open_workbook(self.filename, encoding_override='gbk')
         except FileNotFoundError as f:
-            print("系统发生异常：")
-            input("Error:找不到考勤文件【{}】，请检查文件名是否有误\n或者有多余空格 ：".format(self.filename))
-            os.system(exit(1))
+            logger.error("系统发生异常：")
+            logger.error("Error:找不到考勤文件【{}】，请检查文件名是否有误\n或者有多余空格 ：".format(self.filename))
         data_sheet = workbook.sheet_by_index(0)
         for c in range(data_sheet.ncols):
             temp_list_data_1.append(data_sheet.cell_value(0, c))
@@ -302,9 +315,7 @@ class attendance():
                     os.remove(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
                 except PermissionError as f:
                     logg(f)
-                    # logg("按任意键退出：")
-                    # os.system(exit(1))
-                    return
+                    logger.error(f)
         result_data = self.make_data()
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐11层{}月份考勤.xlsx'.format(self.month)))
@@ -322,21 +333,22 @@ class attendance():
         cell_format_number = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
         # 日期格式：自动换行，列宽12，居中
         cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
-        worksheet.set_column('A:N', 12)
+        if self.workovertime:
+            worksheet.set_column('A:P', 12)
+        else:
+            worksheet.set_column('A:J', 12)
         # 设置默认行高 22
         worksheet.set_default_row(22)
         # 边框实线
         workbook.add_format({'border': 1})
         # ============================================================
         worksheet_cols = 1
-        # 表头信息
-        table_head = ['姓名', '上班未打卡日期', '上班未打卡次数',
-                      '下班未打卡日期', '下班未打卡次数', '迟到日期', '迟到时间',
-                      '早退日期', '早退时间', '加班日期', '加班时长',
-                      '缺勤日期', '周末及节假日加班日期', '周末及节假日加班时长', '备注', '签字']
+        table_head = self.tableHead()
         for vn in range(len(table_head)):
             worksheet.write(0, vn, table_head[vn], cell_format_head)
+
         for name in result_data.keys():
+            # 排除免打卡人员
             if name in self.notneed_person:
                 continue
             worksheet.write(worksheet_cols, 0, name, cell_format_name)
@@ -361,6 +373,10 @@ class attendance():
             # 加班日期及时间
             outtime_list = []
             outtime_time = []
+            # 21点打卡次数
+            times_of_21 = 0
+            # 23点打卡次数
+            times_of_23 = 0
             # 周末节假日加班日期及时长
             holiday_list = []
             holiday_time = []
@@ -368,21 +384,29 @@ class attendance():
             days = self.get_days()
             for date in days:
                 date_result = result_data[name]['result'][date]
-                #print('{}-{}'.format(name, date_result))
+                # 计算加班次数
+                times_of_21 += date_result.get('outtimes_21', 0)
+                times_of_23 += date_result.get('outtimes_23', 0)
+                # 计算上班未打卡日期和次数
                 if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
                     no_uptime_list.append(date)
                     no_uptime_num += 1
+                # 计算下班未打卡日期和次数
                 if date_result['downtime'] == '未打卡' and date_result['uptime'] != '未打卡':
                     no_downtime_list.append(date)
                     no_downtime_num += 1
+                # 计算缺勤日期
                 if date_result['losttime'] == 8:
                     passwork_list.append(date)
+                # 计算迟到日期和时间
                 if date_result['latertime']:
                     lastdate_list.append(date)
                     lastdate_time.append(str(date_result['latertime']))
+                # 计算早退日期和时间
                 if date_result['befortime']:
                     before_list.append(date)
                     before_time.append(str(date_result['befortime']))
+                # 计算加班日期和时间
                 if 'outtime' in date_result.keys():
                     outtime_list.append(date)
                     outtime_time.append(str(date_result['outtime']))
@@ -390,31 +414,50 @@ class attendance():
             for date2 in days2:
                 if date2 in result_data[name]['result'].keys():
                     date_result = result_data[name]['result'][date2]
+                    # 计算节假日加班日期和时间
                     if 'holidayworktime' in date_result.keys():
                         holiday_list.append(date2)
                         holiday_time.append(str(date_result['holidayworktime']))
 
             # 写入excel
+            # '上班未打卡日期', '上班未打卡次数'
             if no_uptime_list and no_uptime_num:
                 worksheet.write(worksheet_cols, 1, ' '.join(no_uptime_list), cell_format_date)
                 worksheet.write(worksheet_cols, 2, no_uptime_num, cell_format_number)
+            # '下班未打卡日期', '下班未打卡次数'
             if no_downtime_list and no_downtime_num:
                 worksheet.write(worksheet_cols, 3, ' '.join(no_downtime_list), cell_format_date)
                 worksheet.write(worksheet_cols, 4, no_downtime_num, cell_format_number)
+            # '迟到日期', '迟到时间'
             if lastdate_list and lastdate_time:
                 worksheet.write(worksheet_cols, 5, ' '.join(lastdate_list), cell_format_date)
                 worksheet.write(worksheet_cols, 6, '\n'.join(lastdate_time), cell_format_date)
+            # '早退日期', '早退时间'
             if before_list and before_time:
                 worksheet.write(worksheet_cols, 7, ' '.join(before_list), cell_format_date)
                 worksheet.write(worksheet_cols, 8, '\n'.join(before_time), cell_format_date)
-            if outtime_list and outtime_time:
-                worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
-                worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
-            if passwork_list:
-                worksheet.write(worksheet_cols, 11, ' '.join(passwork_list), cell_format_date)
-            if holiday_list and holiday_time:
-                worksheet.write(worksheet_cols, 12, ' '.join(holiday_list), cell_format_date)
-                worksheet.write(worksheet_cols, 13, '\n'.join(holiday_time), cell_format_date)
+            #
+            if self.workovertime:
+                # '加班日期', '加班时长'
+                if outtime_list and outtime_time:
+                    worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
+                    worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
+                # '21点打卡次数', '23点打卡次数'
+                if times_of_21 != 0:
+                    worksheet.write(worksheet_cols, 11, times_of_21, cell_format_date)
+                if times_of_23 != 0:
+                    worksheet.write(worksheet_cols, 12, times_of_23, cell_format_date)
+                # '周末及节假日加班日期', '周末及节假日加班时长'
+                if holiday_list and holiday_time:
+                    worksheet.write(worksheet_cols, 13, ' '.join(holiday_list), cell_format_date)
+                    worksheet.write(worksheet_cols, 14, '\n'.join(holiday_time), cell_format_date)
+                # '缺勤日期'
+                if passwork_list:
+                    worksheet.write(worksheet_cols, 15, ' '.join(passwork_list), cell_format_date)
+            else:
+                # '缺勤日期'
+                if passwork_list:
+                    worksheet.write(worksheet_cols, 9, ' '.join(passwork_list), cell_format_date)
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
@@ -428,9 +471,8 @@ class attendance():
         try:
             workbook = xlrd.open_workbook(self.filename_23, encoding_override='gbk')
         except FileNotFoundError as f:
-            print("系统发生异常：")
-            input("Error:找不到考勤文件【{}】，请检查文件名是否有误\n或者有多余空格 ：".format(self.filename_23))
-            os.system(exit(1))
+            logger.error("系统发生异常：")
+            logger.error("Error:找不到考勤文件【{}】，请检查文件名是否有误\n或者有多余空格 ：".format(self.filename_23))
         data_sheet = workbook.sheet_by_index(0)
         for c in range(data_sheet.ncols):
             temp_list_data_1.append(data_sheet.cell_value(0, c))
@@ -491,7 +533,7 @@ class attendance():
                 try:
                     os.remove(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
                 except PermissionError as f:
-                    print(f)
+                    logger.error(f)
         result_data = self.make_data(type=2)
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐23层{}月份考勤.xlsx'.format(self.month)))
@@ -516,11 +558,7 @@ class attendance():
         workbook.add_format({'border': 1})
         # ============================================================
         worksheet_cols = 1
-        # 表头信息
-        table_head = ['姓名', '上班未打卡日期', '上班未打卡次数',
-                      '下班未打卡日期', '下班未打卡次数', '迟到日期', '迟到时间',
-                      '早退日期', '早退时间', '加班日期', '加班时长',
-                      '缺勤日期', '周末及节假日加班日期', '周末及节假日加班时长', '备注', '签字']
+        table_head = self.tableHead()
         for vn in range(len(table_head)):
             worksheet.write(0, vn, table_head[vn], cell_format_head)
         for name in result_data.keys():
@@ -548,6 +586,10 @@ class attendance():
             # 加班日期及时间
             outtime_list = []
             outtime_time = []
+            # 21点打卡次数
+            times_of_21 = 0
+            # 23点打卡次数
+            times_of_23 = 0
             # 周末节假日加班日期及时长
             holiday_list = []
             holiday_time = []
@@ -555,21 +597,35 @@ class attendance():
             days = self.get_days()
             for date in days:
                 date_result = result_data[name]['result'][date]
-                # print('{}-{}'.format(name, date_result))
+                # 计算加班次数
+                times_of_21 += date_result.get('outtimes_21', 0)
+                times_of_23 += date_result.get('outtimes_23', 0)
+
+                # 计算上班未打卡次数
                 if date_result['uptime'] == '未打卡' and date_result['downtime'] != '未打卡':
                     no_uptime_list.append(date)
                     no_uptime_num += 1
+
+                # 计算下班未打卡日期和次数
                 if date_result['downtime'] == '未打卡' and date_result['uptime'] != '未打卡':
                     no_downtime_list.append(date)
                     no_downtime_num += 1
+
+                # 计算缺勤次数
                 if date_result['losttime'] == 8:
                     passwork_list.append(date)
+
+                # 计算迟到日期和时间
                 if date_result['latertime']:
                     lastdate_list.append(date)
                     lastdate_time.append(str(date_result['latertime']))
+
+                # 计算早退日期和时间
                 if date_result['befortime']:
                     before_list.append(date)
                     before_time.append(str(date_result['befortime']))
+
+                # 计算加班日期和时间
                 if 'outtime' in date_result.keys():
                     outtime_list.append(date)
                     outtime_time.append(str(date_result['outtime']))
@@ -594,14 +650,28 @@ class attendance():
             if before_list and before_time:
                 worksheet.write(worksheet_cols, 7, ' '.join(before_list), cell_format_date)
                 worksheet.write(worksheet_cols, 8, '\n'.join(before_time), cell_format_date)
-            if outtime_list and outtime_time:
-                worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
-                worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
-            if passwork_list:
-                worksheet.write(worksheet_cols, 11, ' '.join(passwork_list), cell_format_date)
-            if holiday_list and holiday_time:
-                worksheet.write(worksheet_cols, 12, ' '.join(holiday_list), cell_format_date)
-                worksheet.write(worksheet_cols, 13, '\n'.join(holiday_time), cell_format_date)
+                # 写入加班数据
+                if self.workovertime:
+                    # '加班日期', '加班时长'
+                    if outtime_list and outtime_time:
+                        worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
+                        worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
+                    # '21点打卡次数', '23点打卡次数'
+                    if times_of_21 != 0:
+                        worksheet.write(worksheet_cols, 11, times_of_21, cell_format_date)
+                    if times_of_23 != 0:
+                        worksheet.write(worksheet_cols, 12, times_of_23, cell_format_date)
+                    # '周末及节假日加班日期', '周末及节假日加班时长'
+                    if holiday_list and holiday_time:
+                        worksheet.write(worksheet_cols, 13, ' '.join(holiday_list), cell_format_date)
+                        worksheet.write(worksheet_cols, 14, '\n'.join(holiday_time), cell_format_date)
+                    # '缺勤日期'
+                    if passwork_list:
+                        worksheet.write(worksheet_cols, 15, ' '.join(passwork_list), cell_format_date)
+                else:
+                    # '缺勤日期'
+                    if passwork_list:
+                        worksheet.write(worksheet_cols, 9, ' '.join(passwork_list), cell_format_date)
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
@@ -616,10 +686,11 @@ class attendance():
                 try:
                     os.remove(os.path.join('result', '金桐{}月份加班统计.xlsx'.format(self.month)))
                 except PermissionError as f:
-                    print(f)
-                    input("按任意键退出：")
-                    os.system(exit(1))
-        result_data = self.make_data()
+                    logger.error(f)
+        if self.type == 11:
+            result_data = self.make_data()
+        else:
+            result_data = self.make_data(type=2)
         # print(result_data)
         # create excel table
         workbook = xlsxwriter.Workbook(os.path.join('result', '金桐{}月份加班统计.xlsx'.format(self.month)))
@@ -671,10 +742,15 @@ class attendance():
                     if 'holidayworktime' in date_result.keys():
                         holiday_list.append(date2)
                         holiday_time.append(str(date_result['holidayworktime']))
+            if times_of_21 == 0 \
+                    and times_of_23 == 0 \
+                    and len(holiday_list) == 0:
+                continue
+
             if times_of_21 != 0:
                 worksheet.write(worksheet_cols, 1, times_of_21, cell_format_number)
             if times_of_23 != 0:
-                worksheet.write(worksheet_cols, 2, times_of_21, cell_format_number)
+                worksheet.write(worksheet_cols, 2, times_of_23, cell_format_number)
             if holiday_list and holiday_time:
                 worksheet.write(worksheet_cols, 3, ' '.join(holiday_list), cell_format_date)
                 worksheet.write(worksheet_cols, 4, '\n'.join(holiday_time), cell_format_date)
@@ -712,12 +788,27 @@ class attendance():
             else:
                 wlist = []
                 wlist.append('{}{}'.format(math, cache_str))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(e)
         finally:
                 with open('cache.txt', 'w+', encoding='utf-8') as w:
                     for line in wlist:
                         w.write(line + '\n')
+
+    # excel head
+    def tableHead(self):
+        # 表头信息
+        table_head = ['姓名', '上班未打卡日期', '上班未打卡次数',
+                      '下班未打卡日期', '下班未打卡次数', '迟到日期', '迟到时间',
+                      '早退日期', '早退时间']
+        # 加班分析表头
+        if self.workovertime:
+            table_head += ['加班日期', '加班时长',
+                           '21点打卡次数', '23点打卡次数',
+                           '周末及节假日加班日期', '周末及节假日加班时长', '缺勤日期']
+        else:
+            table_head.append('缺勤日期')
+        return table_head
 
 
 if __name__ == '__main__':
@@ -739,21 +830,31 @@ if __name__ == '__main__':
         ui.textBrowser.append(text)
 
     def getconf():
-        status = 0
         clist = {}
         clist['year'] = ui.cyear.text()
         clist['month'] = ui.cmonth.text()
         clist['utime'] = ui.utime.text()
         clist['dtime'] = ui.dtime.text()
         clist['outtime'] = ui.otime.text()
+        # 判断是否需要分析加班
+        if ui.checkBox.isChecked():
+            clist['workovertime'] = True
+        else:
+            clist['workovertime'] = False
+            # 获取区域
+        if ui.radioButton.isChecked():
+            clist['type'] = 11
+        else:
+            clist['type'] = 23
         hdays = ui.textEdit_2.toPlainText()
         clist['hdays'] = {}
         if hdays:
             try:
                 for i1 in hdays.split(','):
                     clist['hdays'][i1.split(':')[0]] = [i1.split(':')[1].split()[0], i1.split(':')[1].split()[1]]
-            except IndexError:
-                logg("Error: 节假日格式错误，未生效。")
+            except Exception as e:
+                logg("Error: 节假日格式错误，未生效。{}".format(e))
+                logger.error("Error: 节假日格式错误，未生效。{}".format(e))
                 clist['hdays'] = {}
         nonotes = ui.textEdit.toPlainText()
         tmp_d2 = []
@@ -770,6 +871,10 @@ if __name__ == '__main__':
             C.make_excel_23()
 
     def auto_set():
+        """
+        自动获取免打卡人员
+        :return:
+        """
         if ui.radioButton.isChecked():
             m = 11
         else:
@@ -784,7 +889,7 @@ if __name__ == '__main__':
                         if re.match(math, line.strip()):
                             ui.textEdit.setPlainText(str(line.strip().split(math)[1]))
             except Exception as e:
-                print(e)
+                logger.error(e)
     C = attendance(filename=r'11层考勤.xls', filename23=r'23层考勤.xls')
     ui.textBrowser.setText('')
     auto_set()
