@@ -12,6 +12,6 @@ if __name__ == '__main__':
             '--paths=D:\\Installer\\Python\\Python35\\Lib\\site-packages\\PyQt5\\Qt\\plugins',
             # '--paths=E:\\xiaoxu\\attendance',
             '--icon', 'bitbug_favicon.ico', '--clean',
-            'main2.py']
+            'main.py']
 
 run(opts)

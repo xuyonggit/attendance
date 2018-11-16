@@ -14,7 +14,7 @@
    <string>考勤管理系统</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(206, 217, 255);</string>
+   <string notr="true">alternate-background-color: rgb(255, 255, 127);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTextBrowser" name="textBrowser">
@@ -98,6 +98,9 @@ font: 10pt &quot;ADMUI3Lg&quot;;</string>
       <width>131</width>
       <height>181</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="title">
      <string>考勤区域选择</string>
@@ -468,18 +471,36 @@ selection-background-color: rgb(177, 177, 177);</string>
    </property>
    <widget class="QMenu" name="menuhelp">
     <property name="title">
-     <string>help</string>
+     <string>帮助</string>
     </property>
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="action_2"/>
+    <addaction name="action"/>
    </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>设置</string>
+    </property>
+    <addaction name="action_3"/>
+   </widget>
+   <addaction name="menu"/>
    <addaction name="menuhelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_2">
    <property name="text">
     <string>软件简介</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>赞助作者</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>退出</string>
    </property>
   </action>
  </widget>
