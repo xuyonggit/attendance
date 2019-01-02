@@ -47,12 +47,17 @@ class attendance():
         if hdays:
             for name in hdays.keys():
                 self.holidays[name] = []
-                startdate = datetime.datetime.strptime(hdays[name][0], "%Y-%m-%d")
-                enddate = datetime.datetime.strptime(hdays[name][1], "%Y-%m-%d")
-                while startdate < enddate:
+                if len(hdays[name]) > 1:
+                    startdate = datetime.datetime.strptime(hdays[name][0], "%Y-%m-%d")
+                    enddate = datetime.datetime.strptime(hdays[name][1], "%Y-%m-%d")
+                    while startdate <= enddate:
+                        date_str = startdate.strftime('%Y-%m-%d')
+                        self.holidays[name].append(date_str)
+                        startdate += datetime.timedelta(days=1)
+                else:
+                    startdate = datetime.datetime.strptime(hdays[name][0], "%Y-%m-%d")
                     date_str = startdate.strftime('%Y-%m-%d')
                     self.holidays[name].append(date_str)
-                    startdate += datetime.timedelta(days=1)
         nonotes = sdata['nonotes']
         self.notneed_person = nonotes
 
@@ -851,7 +856,10 @@ if __name__ == '__main__':
         if hdays:
             try:
                 for i1 in hdays.split(','):
-                    clist['hdays'][i1.split(':')[0]] = [i1.split(':')[1].split()[0], i1.split(':')[1].split()[1]]
+                    if len(i1.split(':')[1].split()) == 2:
+                        clist['hdays'][i1.split(':')[0]] = [i1.split(':')[1].split()[0], i1.split(':')[1].split()[1]]
+                    else:
+                        clist['hdays'][i1.split(':')[0]] = [i1.split(':')[1].split()[0]]
             except Exception as e:
                 logg("Error: 节假日格式错误，未生效。{}".format(e))
                 logger.error("Error: 节假日格式错误，未生效。{}".format(e))
