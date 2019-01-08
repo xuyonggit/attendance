@@ -2,3 +2,4 @@ PyQt5==5.11.3
 PyQt5-sip==4.19.13
 XlsxWriter==1.1.2
 xlrd==1.2.0
+PyInstaller==3.4
