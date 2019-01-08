@@ -12,7 +12,7 @@ gintong 考勤处理软件
         新增日志输出
         优化代码性能
 # 软件截图：
-![](https://github.com/xuyonggit/attendance/blob/latest/software.png)
+![](https://github.com/xuyonggit/attendance/blob/latest/png/software.png)
 
 # 打包方式
 ```
