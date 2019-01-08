@@ -15,6 +15,6 @@ gintong 考勤处理软件
 ![](https://github.com/xuyonggit/attendance/blob/latest/software.png)
 
 # 打包方式
-···
+```
 python setup.py
-···
+```
