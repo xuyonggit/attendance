@@ -233,6 +233,8 @@ class attendance():
                     data[name]['result'][notedate]['befortime'] = 0
                     # 初始化迟到时间
                     data[name]['result'][notedate]['latertime'] = 0
+                    # 初始化工时，单位 s
+                    data[name]['result'][notedate]['allworktimes'] = 0
                     # -----------------------------------------------------------
                     if notedate in values['date'].keys():
                         alltime = self.check_note(values['date'][notedate], outtime='12:00')
@@ -243,10 +245,12 @@ class attendance():
                             values['result'][notedate]['downtime'] = endtime
                             worktime = datetime.datetime.strptime(endtime, '%H:%M') - datetime.datetime.strptime(
                                 starttime, '%H:%M')
-                            if datetime.datetime.strptime(starttime, '%H:%M') > datetime.datetime.strptime(out_time,
-                                                                                                           '%H:%M'):
-                                lasttime = str((datetime.datetime.strptime(starttime,
-                                                                           '%H:%M') - datetime.datetime.strptime(
+                            # 递增总工时
+                            data[name]['result'][notedate]['allworktimes'] = ((datetime.datetime.strptime(
+                                    alltime['end'], '%H:%M') - datetime.datetime.strptime(
+                                    alltime['one'], '%H:%M')).seconds) - 3600
+                            if datetime.datetime.strptime(starttime, '%H:%M') > datetime.datetime.strptime(out_time, '%H:%M'):
+                                lasttime = str((datetime.datetime.strptime(starttime, '%H:%M') - datetime.datetime.strptime(
                                     out_time, '%H:%M')))
                                 data[name]['result'][notedate]['latertime'] = lasttime
                             else:
@@ -295,6 +299,8 @@ class attendance():
                         outwork_time = datetime.datetime.strptime(alltime['end'], '%H:%M') - \
                                        datetime.datetime.strptime(alltime['one'], '%H:%M')
                         values['result'][notedate2]['holidayworktime'] = outwork_time
+                        values['result'][notedate2]['allworktimes'] = outwork_time.seconds
+
         return data
 
     # create excel table
@@ -339,7 +345,7 @@ class attendance():
         # 日期格式：自动换行，列宽12，居中
         cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
         if self.workovertime:
-            worksheet.set_column('A:P', 12)
+            worksheet.set_column('A:Q', 12)
         else:
             worksheet.set_column('A:J', 12)
         # 设置默认行高 22
@@ -385,6 +391,8 @@ class attendance():
             # 周末节假日加班日期及时长
             holiday_list = []
             holiday_time = []
+            # 总工时
+            allworktimes = 0
             days2 = self.get_days(type=1)
             days = self.get_days()
             for date in days:
@@ -416,6 +424,8 @@ class attendance():
                     outtime_list.append(date)
                     outtime_time.append(str(date_result['outtime']))
                 lostwork_hour += date_result['losttime']
+                # 计算总工时
+                allworktimes += date_result['allworktimes']
             for date2 in days2:
                 if date2 in result_data[name]['result'].keys():
                     date_result = result_data[name]['result'][date2]
@@ -423,7 +433,7 @@ class attendance():
                     if 'holidayworktime' in date_result.keys():
                         holiday_list.append(date2)
                         holiday_time.append(str(date_result['holidayworktime']))
-
+                        allworktimes += date_result['allworktimes']
             # 写入excel
             # '上班未打卡日期', '上班未打卡次数'
             if no_uptime_list and no_uptime_num:
@@ -459,10 +469,16 @@ class attendance():
                 # '缺勤日期'
                 if passwork_list:
                     worksheet.write(worksheet_cols, 15, ' '.join(passwork_list), cell_format_date)
+                # '总工时(h)'
+                if allworktimes:
+                    worksheet.write(worksheet_cols, 16, round(allworktimes / 3600, 1), cell_format_date)
             else:
                 # '缺勤日期'
                 if passwork_list:
                     worksheet.write(worksheet_cols, 9, ' '.join(passwork_list), cell_format_date)
+                # '总工时(h)'
+                if allworktimes:
+                    worksheet.write(worksheet_cols, 10, round(allworktimes / 3600, 1), cell_format_date)
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
@@ -556,7 +572,10 @@ class attendance():
         cell_format_number = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
         # 日期格式：自动换行，列宽15，居中
         cell_format_date = workbook.add_format({'text_wrap': True, 'align': 'center', 'valign': 'vcenter'})
-        worksheet.set_column('A:N', 12)
+        if self.workovertime:
+            worksheet.set_column('A:Q', 12)
+        else:
+            worksheet.set_column('A:J', 12)
         # 设置默认行高 22
         worksheet.set_default_row(22)
         # 边框实线
@@ -598,6 +617,8 @@ class attendance():
             # 周末节假日加班日期及时长
             holiday_list = []
             holiday_time = []
+            # 总工时
+            allworktimes = 0
             days2 = self.get_days(type=1)
             days = self.get_days()
             for date in days:
@@ -635,12 +656,15 @@ class attendance():
                     outtime_list.append(date)
                     outtime_time.append(str(date_result['outtime']))
                 lostwork_hour += date_result['losttime']
+                # 计算总工时
+                allworktimes += date_result['allworktimes']
             for date2 in days2:
                 if date2 in result_data[name]['result'].keys():
                     date_result = result_data[name]['result'][date2]
                     if 'holidayworktime' in date_result.keys():
                         holiday_list.append(date2)
                         holiday_time.append(str(date_result['holidayworktime']))
+                        allworktimes += date_result['allworktimes']
 
             # 写入excel
             if no_uptime_list and no_uptime_num:
@@ -673,10 +697,16 @@ class attendance():
                     # '缺勤日期'
                     if passwork_list:
                         worksheet.write(worksheet_cols, 15, ' '.join(passwork_list), cell_format_date)
+                    # '总工时(h)'
+                    if allworktimes:
+                        worksheet.write(worksheet_cols, 16, round(allworktimes / 3600, 1), cell_format_date)
                 else:
                     # '缺勤日期'
                     if passwork_list:
                         worksheet.write(worksheet_cols, 9, ' '.join(passwork_list), cell_format_date)
+                    # '总工时(h)'
+                    if allworktimes:
+                        worksheet.write(worksheet_cols, 10, round(allworktimes / 3600, 1), cell_format_date)
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
@@ -810,9 +840,9 @@ class attendance():
         if self.workovertime:
             table_head += ['加班日期', '加班时长',
                            '21点打卡次数', '23点打卡次数',
-                           '周末及节假日加班日期', '周末及节假日加班时长', '缺勤日期']
+                           '周末及节假日加班日期', '周末及节假日加班时长', '缺勤日期', '总工时(h)']
         else:
-            table_head.append('缺勤日期')
+            table_head += ['缺勤日期', '总工时(h)']
         return table_head
 
 
@@ -880,7 +910,7 @@ if __name__ == '__main__':
 
     def auto_set():
         """
-        自动获取免打卡人员,缓存数据
+        自动获取免打卡人员,缓存数据,本地文件缓存
         :return:
         """
         if ui.radioButton.isChecked():

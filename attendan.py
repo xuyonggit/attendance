@@ -29,13 +29,13 @@ class Ui_MainWindow(object):
         self.radioButton.setCursor(QtGui.QCursor(QtCore.Qt.ClosedHandCursor))
         self.radioButton.setStyleSheet("color: rgb(0, 0, 0);\n"
 "font: 10pt \"ADMUI3Lg\";")
-        self.radioButton.setChecked(True)
         self.radioButton.setObjectName("radioButton")
         self.radioButton_2 = QtWidgets.QRadioButton(self.centralwidget)
         self.radioButton_2.setGeometry(QtCore.QRect(50, 130, 71, 17))
         self.radioButton_2.setCursor(QtGui.QCursor(QtCore.Qt.ClosedHandCursor))
         self.radioButton_2.setStyleSheet("color: rgb(0, 0, 0);\n"
 "font: 10pt \"ADMUI3Lg\";")
+        self.radioButton_2.setChecked(True)
         self.radioButton_2.setObjectName("radioButton_2")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(10, 50, 131, 181))
