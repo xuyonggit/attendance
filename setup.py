@@ -11,7 +11,7 @@ if __name__ == '__main__':
     opts = ['-F', '-w', '--paths=E:\\xiaoxu\\attendance\\venv\\Lib\\site-packages\\PyQt5\\Qt\\bin',
             '--paths=E:\\xiaoxu\\attendance\\venv\\Lib\\site-packages\\PyQt5\\Qt\\plugins',
             # '--paths=E:\\xiaoxu\\attendance',
-            '--icon', 'png\\bitbug_favicon.ico', '--clean',
+            '--icon', 'png\\main2019.ico', '--clean',
             'main.py']
 
 run(opts)

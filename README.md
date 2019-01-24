@@ -11,6 +11,10 @@ gintong 考勤处理软件
         新增：加班分析选择（可单独分析出勤数据也可额外选择分析加班数据-同一Excel）
         新增日志输出
         优化代码性能
+## version - 1.1.1
+        新增：人员总工时统计
+        修改：默认考勤区域选择（由默认11层改为默认23层）
+
 # 软件截图：
 ![](https://github.com/xuyonggit/attendance/blob/latest/png/software.png)
 
