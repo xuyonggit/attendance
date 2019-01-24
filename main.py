@@ -262,9 +262,13 @@ class attendance():
                         elif 'one' in alltime.keys() and 'end' not in alltime.keys():
                             values['result'][notedate]['uptime'] = alltime['one']
                             values['result'][notedate]['downtime'] = '未打卡'
+                            # 递增总工时
+                            data[name]['result'][notedate]['allworktimes'] = 8 * 3600
                         elif 'one' not in alltime.keys() and 'end' in alltime.keys():
                             values['result'][notedate]['uptime'] = '未打卡'
                             values['result'][notedate]['downtime'] = alltime['end']
+                            # 递增总工时
+                            data[name]['result'][notedate]['allworktimes'] = 8 * 3600
                         # 缺勤
                         else:
                             values['result'][notedate]['uptime'] = '未打卡'
