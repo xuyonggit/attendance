@@ -684,33 +684,33 @@ class attendance():
                 worksheet.write(worksheet_cols, 7, ' '.join(before_list), cell_format_date)
                 worksheet.write(worksheet_cols, 8, '\n'.join(before_time), cell_format_date)
                 # 写入加班数据
-                if self.workovertime:
-                    # '加班日期', '加班时长'
-                    if outtime_list and outtime_time:
-                        worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
-                        worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
-                    # '21点打卡次数', '23点打卡次数'
-                    if times_of_21 != 0:
-                        worksheet.write(worksheet_cols, 11, times_of_21, cell_format_date)
-                    if times_of_23 != 0:
-                        worksheet.write(worksheet_cols, 12, times_of_23, cell_format_date)
-                    # '周末及节假日加班日期', '周末及节假日加班时长'
-                    if holiday_list and holiday_time:
-                        worksheet.write(worksheet_cols, 13, ' '.join(holiday_list), cell_format_date)
-                        worksheet.write(worksheet_cols, 14, '\n'.join(holiday_time), cell_format_date)
-                    # '缺勤日期'
-                    if passwork_list:
-                        worksheet.write(worksheet_cols, 15, ' '.join(passwork_list), cell_format_date)
-                    # '总工时(h)'
-                    if allworktimes:
-                        worksheet.write(worksheet_cols, 16, round(allworktimes / 3600, 1), cell_format_date)
-                else:
-                    # '缺勤日期'
-                    if passwork_list:
-                        worksheet.write(worksheet_cols, 9, ' '.join(passwork_list), cell_format_date)
-                    # '总工时(h)'
-                    if allworktimes:
-                        worksheet.write(worksheet_cols, 10, round(allworktimes / 3600, 1), cell_format_date)
+            if self.workovertime:
+                # '加班日期', '加班时长'
+                if outtime_list and outtime_time:
+                    worksheet.write(worksheet_cols, 9, ' '.join(outtime_list), cell_format_date)
+                    worksheet.write(worksheet_cols, 10, '\n'.join(outtime_time), cell_format_date)
+                # '21点打卡次数', '23点打卡次数'
+                if times_of_21 != 0:
+                    worksheet.write(worksheet_cols, 11, times_of_21, cell_format_date)
+                if times_of_23 != 0:
+                    worksheet.write(worksheet_cols, 12, times_of_23, cell_format_date)
+                # '周末及节假日加班日期', '周末及节假日加班时长'
+                if holiday_list and holiday_time:
+                    worksheet.write(worksheet_cols, 13, ' '.join(holiday_list), cell_format_date)
+                    worksheet.write(worksheet_cols, 14, '\n'.join(holiday_time), cell_format_date)
+                # '缺勤日期'
+                if passwork_list:
+                    worksheet.write(worksheet_cols, 15, ' '.join(passwork_list), cell_format_date)
+                # '总工时(h)'
+                if allworktimes:
+                    worksheet.write(worksheet_cols, 16, round(allworktimes / 3600, 1), cell_format_date)
+            else:
+                # '缺勤日期'
+                if passwork_list:
+                    worksheet.write(worksheet_cols, 9, ' '.join(passwork_list), cell_format_date)
+                # '总工时(h)'
+                if allworktimes:
+                    worksheet.write(worksheet_cols, 10, round(allworktimes / 3600, 1), cell_format_date)
             worksheet_cols += 1
         workbook.close()
         logg("操作完成。")
